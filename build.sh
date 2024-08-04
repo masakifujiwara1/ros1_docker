@@ -1,3 +1,5 @@
 #!/bin/bash
 
-eval "docker image build -t only-noetic-cartographer ."
+
+eval "docker image build -t cartographer_ros:noetic ."
+

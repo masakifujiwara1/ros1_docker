@@ -99,20 +99,7 @@ fi
 #if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
 #    . /etc/bash_completion
 #fi
-
-source /opt/ros/noetic/setup.bash
-source ~/catkin_ws/devel/setup.bash
-export ROS_MASTER_URI=http://localhost:11311
-export ROS_HOSTNAME=localhost
-
-export ROS_WORKSPACE=${HOME}/catkin_ws
-
-# function ros_make() {
-#     dir=$PWD;
-#     cd $ROS_WORKSPACE;
-#     colcon build --symlink-install;
-#     . install/local_setup.bash;
-#     cd $dir;
-# }
 	
 export TURTLEBOT3_MODEL=burger    
+source /opt/ros/noetic/setup.bash
+source /opt/cartographer_ros/setup.bash
