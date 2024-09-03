@@ -69,6 +69,22 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
 # set catkin workspace
 RUN source /opt/ros/noetic/setup.bash && mkdir -p catkin_ws/src && cd ~/catkin_ws && catkin build 
 
+# orne-box install
+RUN sudo apt-get update &&\
+    cd ~/catkin_ws/src &&\
+    git clone -b noetic-devel https://github.com/open-rdc/orne-box &&\
+    wstool init &&\
+    wstool merge orne-box/orne_box_pkgs.install &&\
+    wstool up &&\
+    rosdep update &&\
+    rosdep install --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y &&\
+    cd ~/catkin_ws &&\
+    catkin build &&\
+    source /opt/ros/noetic/setup.bash &&\
+    source ~/catkin_ws/devel/setup.bash &&\
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/*
+
 # config setting
 COPY config/.bashrc /home/$USER_NAME/.bashrc
 COPY config/.vimrc /home/$USER_NAME/.vimrc
