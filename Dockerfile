@@ -1,40 +1,77 @@
 FROM osrf/ros:noetic-desktop-full
 
-WORKDIR /home
-ENV HOME /home
-
-ENV DEBIAN_FRONTEND noninteractive
-ENV TZ Asia/Tokyo
-
-ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
-ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
-
+SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive
 
-SHELL ["/bin/bash", "-c"]
+# setup timezone
+RUN echo 'Asia/Tokyo' > /etc/timezone && \
+    ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+    apt-get update && DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -q -y --no-install-recommends \
+        tzdata && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# install vim
-RUN apt-get update -qq
-RUN apt-get install -y tzdata
-RUN apt-get update && apt-get install -y vim git lsb-release sudo gnupg tmux curl
+# setup environment
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
-# install python3
-# RUN apt-get install -y python3 python3-pip
-# RUN python3 -m pip install --upgrade pip
+# locale
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -q -y --no-install-recommends \
+        locales && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN locale-gen en_US.UTF-8
 
-# # install pytorch v1.12.1
-# RUN pip3 install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+# install basic packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        sudo \
+        x11-apps \
+        mesa-utils \
+        curl \
+        lsb-release \
+        less \
+        tmux \
+        command-not-found \
+        git \
+        xsel \
+        vim \
+        wget \
+        gnupg \
+        build-essential \
+        python3-dev \
+        python3-pip \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install -y ros-noetic-rqt-* 
-RUN apt-get install -y python3-catkin-tools
+# ENV setting
+ARG USER_NAME=ubuntu
+ARG GROUP_NAME=ubuntu
+ARG UID=1000
+ARG GID=1000
+ARG PASSWORD=ubuntu
+RUN groupadd -g $GID $GROUP_NAME && \
+    useradd -m -s /bin/bash -u $UID -g $GID -G sudo $USER_NAME && \
+    echo $USER_NAME:$PASSWORD | chpasswd && \
+    echo "$USER_NAME   ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+USER $USER_NAME
+WORKDIR /home/$USER_NAME
+# ENV HOME /home/$USER_NAME
+ENV TERM=xterm-256color
+
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+        ros-noetic-rqt-*  \
+        python3-catkin-tools \
+        && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/*
 
 # set catkin workspace
-COPY config/git_clone.sh /home/git_clone.sh
 RUN source /opt/ros/noetic/setup.bash && mkdir -p catkin_ws/src && cd ~/catkin_ws && catkin build 
-# RUN cd /root/catkin_ws/src && . /home/git_clone.sh
 
-COPY config/.bashrc /home/.bashrc
-COPY config/.vimrc /home/.vimrc
+# config setting
+COPY config/.bashrc /home/$USER_NAME/.bashrc
+COPY config/.vimrc /home/$USER_NAME/.vimrc
+COPY config/.tmux.conf /home/$USER_NAME/.tmux.conf
 
-# clean workspace
-RUN rm -rf git_clone.sh
+CMD ["bash"]

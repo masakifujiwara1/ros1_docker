@@ -1,3 +1,3 @@
 #!/bin/bash
 
-eval "docker image build -t only-noetic ."
+eval "docker image build -t masakifujiwara1/ros1:noetic ."

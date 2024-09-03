@@ -3,6 +3,7 @@
 eval "docker container run \
 --network host \
 -it \
+--gpus all \
 --name my-noetic \
 -e DISPLAY=$DISPLAY \
 --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
