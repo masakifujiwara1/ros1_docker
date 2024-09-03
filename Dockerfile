@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # setup timezone
 RUN echo 'Asia/Tokyo' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+    ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     apt-get update && DEBIAN_FRONTEND=noninteractive && \
     apt-get install -q -y --no-install-recommends \
         tzdata && \
