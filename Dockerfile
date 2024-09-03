@@ -61,6 +61,8 @@ ENV TERM=xterm-256color
 
 RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
         ros-noetic-rqt-*  \
+        ros-noetic-map-server* \
+        ros-noetic-dwa* \
         python3-catkin-tools \
         && \
     sudo apt-get clean && \
