@@ -74,18 +74,24 @@ RUN source /opt/ros/noetic/setup.bash && mkdir -p catkin_ws/src && cd ~/catkin_w
 # orne-box install
 RUN sudo apt-get update &&\
     cd ~/catkin_ws/src &&\
-    git clone -b noetic-devel https://github.com/open-rdc/orne-box &&\
+    git clone -b TC_2024_EX https://github.com/masakifujiwara1/orne-box &&\
     wstool init &&\
     wstool merge orne-box/orne_box_pkgs.install &&\
     wstool up &&\
     rosdep update &&\
     rosdep install --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y &&\
     cd ~/catkin_ws &&\
-    catkin build &&\
+    catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release &&\
     source /opt/ros/noetic/setup.bash &&\
     source ~/catkin_ws/devel/setup.bash &&\
     sudo apt-get clean && \
     sudo rm -rf /var/lib/apt/lists/*
+
+RUN cd ~/catkin_ws/src && git clone --recursive https://github.com/technoroad/ADI_IMU_TR_Driver_ROS1
+
+# opengl setting
+ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
 # config setting
 COPY config/.bashrc /home/$USER_NAME/.bashrc
